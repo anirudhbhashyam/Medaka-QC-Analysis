@@ -1,7 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Medaka-QC-Analysis
-Analyse the results of quality control parameters from the heart region detection from medaka.
+Analyse the results of quality control parameters of the heart region detection from medaka.
 
 # Usage
 
