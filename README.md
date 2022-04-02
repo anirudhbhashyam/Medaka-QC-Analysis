@@ -11,5 +11,5 @@ Analyse the results of quality control parameters of the heart region detection 
 git clone --recursive https://github.com/anirudhbhashyam/Medaka-QC-Analysis
 cd Medaka-QC-Analysis
 cd src
-python analysis.py -f <path to csv file>
+python analysis.py -f <path_to_csv_file>
 ```
