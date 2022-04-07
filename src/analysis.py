@@ -80,7 +80,7 @@ def decision_tree(data: pd.DataFrame) -> sklearn.tree.DecisionTreeClassifier:
     X_train, X_test, Y_train, Y_test = train_test_split(data, Y, test_size = 0.3, random_state = 104729)
     classifier = DecisionTreeClassifier(random_state = 224737, min_samples_split = 2)
     classifier.fit(X_train, Y_train)
-    print(f"Accuracy achieved on test set: {(classifier.score(X_test, Y_test) * 100):.2f}%")
+    # print(f"Accuracy achieved on test set: {(classifier.score(X_test, Y_test) * 100):.2f}%")
     return classifier
     
 def plot_decision_tree(tree: sklearn.tree,
@@ -163,3 +163,8 @@ def write_results(raw_data: pd.DataFrame,
     plot_decision_tree(tree = classifier, feature_names =  data.columns, save_name = "decision_tree", out_dir = plots_dir)
     threshold_data = process_limits(limits)
     threshold_data.to_csv(os.path.join(data_dir, "qc_thresholds.csv"))
+
+    
+    # TODO:     
+        # - Classifier results.
+        # - Multiple file support.

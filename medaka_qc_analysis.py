@@ -2,7 +2,7 @@ import os
 import sys
 import argparse
 
-sys.path.append("src")
+sys.path.append(os.path.abspath("src"))
 
 import analysis as analyse
 
