@@ -163,20 +163,3 @@ def write_results(raw_data: pd.DataFrame,
     plot_decision_tree(tree = classifier, feature_names =  data.columns, save_name = "decision_tree", out_dir = plots_dir)
     threshold_data = process_limits(limits)
     threshold_data.to_csv(os.path.join(data_dir, "qc_thresholds.csv"))
-
-def process_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input_file", help = "Results from medaka_bpm", type = str, required = True)
-    parser.add_argument("-o", "--out_dir",  help = "Directory to write analysis results", type = str, required = True)
-    return parser.parse_args()
-
-def main():
-    args = process_args()
-    raw_data = pd.read_csv(args.input_file)
-    data, scale = process_data(raw_data, 20)
-    classifier = decision_tree(data)
-    limits = get_thresholds(raw_data, qc_features, classifier)
-    write_results(raw_data, data, classifier, limits, args.out_dir)
-    
-if __name__ == "__main__":
-    main()
