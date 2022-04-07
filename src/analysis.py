@@ -17,13 +17,13 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 
 from variables import *
 
-qc_features = ["HROI Change Intensity", "Harmonic Intensity", "Heart size", "Movement detection max", "SNR", "Signal intensity", "Signal regional prominence", "Intensity/Harmonic Intensity (top 5 %)", "SNR Top 5%", "Signal Intensity Top 5%"]
-
-def plot_qc_params(data: pd.DataFrame, 
+def plot_qc_params(data: pd.DataFrame,
+                   save_name: str, 
+                   out_dir: str,
                    limits: Union[dict, None] = None,
                    figsize: tuple = (10, 30), 
-                   save_q: bool = False,
-                   save_name: str = "abc") -> None:
+                   save_q: bool = True) -> None:
+    
     fig, ax = plt.subplots(nrows = len(qc_features), 
                         figsize = figsize,
                         gridspec_kw = dict(left = 0.01, right = 0.9,
@@ -44,15 +44,15 @@ def plot_qc_params(data: pd.DataFrame,
                 for threshold in limits[feature]:
                     ax[i].axhline(y = threshold, xmin = 0, xmax = 200, c = "red", lw = 0.7, label = threshold)    
                     ax[i].legend()
-            
-        
+                    
     if save_q:
-        if not os.path.exists(PLOT_SAVE_DIR):
-            os.makedirs(PLOT_SAVE_DIR)
-        fig.savefig(os.path.join(PLOT_SAVE_DIR, ".".join([save_name, "png"])), 
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        fig.savefig(os.path.join(out_dir, ".".join([save_name, "png"])), 
                     dpi = 180,
                     bbox_inches = "tight")
-    plt.show()
+        
+    plt.close()
     
     return None
 
@@ -84,6 +84,8 @@ def decision_tree(data: pd.DataFrame) -> sklearn.tree.DecisionTreeClassifier:
     return classifier
     
 def plot_decision_tree(tree: sklearn.tree,
+                       save_name: str,
+                       out_dir: str,
                        feature_names: Iterable[str],
                        class_names: Iterable[str] = ["no_error", "error"],
                        figsize: tuple = (16, 9),
@@ -98,9 +100,11 @@ def plot_decision_tree(tree: sklearn.tree,
                            filled = True)
     
     if save_q:
-        if not os.path.exists(PLOT_SAVE_DIR):
-            os.makedirs(PLOT_SAVE_DIR)
-        plt.figure().savefig(os.path.join(PLOT_SAVE_DIR, ".".join(["decision_tree", "jpg"])), format = "jpg", dpi = 180, bbox_inches = "tight")
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir)
+        plt.figure().savefig(os.path.join(out_dir, ".".join(["decision_tree", "png"])), format = "jpg", dpi = 180, bbox_inches = "tight")
+        
+    plt.close()
     
 def get_thresholds(unscaled_data: pd.DataFrame,
                    train_data_features: Iterable, 
@@ -133,22 +137,46 @@ def process_limits(qc_thresolds: dict) -> pd.DataFrame:
     df["qc_max"] = df.max(axis = 1, skipna = True)
     return df 
 
+def write_results(raw_data: pd.DataFrame, 
+                  data: pd.DataFrame, 
+                  classifier: sklearn.tree.DecisionTreeClassifier, 
+                  limits: dict, 
+                  out_dir: str) -> None:
+    
+    results_dir = os.path.join(out_dir, "-".join(["qc_analysis_results", raw_data["DATASET"][0]]))
+    
+    if os.path.exists(results_dir):
+         print("Results directory already exists. Overwriting.")
+    
+    os.makedirs(results_dir, exist_ok = True)
+    
+    plots_dir = os.path.join(results_dir, PLOT_SAVE_DIR)
+    data_dir = os.path.join(results_dir, DATA_SAVE_DIR)
+    
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+        
+    if not os.path.exists(plots_dir):
+        os.makedirs(plots_dir)
+        
+    plot_qc_params(data = raw_data, limits = limits, save_name = "qc_params_thresholds", figsize = (10, 40), out_dir = plots_dir)
+    plot_decision_tree(tree = classifier, feature_names =  data.columns, save_name = "decision_tree", out_dir = plots_dir)
+    threshold_data = process_limits(limits)
+    threshold_data.to_csv(os.path.join(data_dir, "qc_thresholds.csv"))
+
+def process_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input_file", help = "Results from medaka_bpm", type = str, required = True)
+    parser.add_argument("-o", "--out_dir",  help = "Directory to write analysis results", type = str, required = True)
+    return parser.parse_args()
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-f", "--file", help = "Results from medaka", type = str, required = True)
-    args = parser.parse_args()
-    
-    raw_data = pd.read_csv(args.file)
-    # plot_qc_params(raw_data, save = True, save_name = "qc_params")
+    args = process_args()
+    raw_data = pd.read_csv(args.input_file)
     data, scale = process_data(raw_data, 20)
-    # print(data.head())
     classifier = decision_tree(data)
-    plot_decision_tree(classifier, data.columns)
     limits = get_thresholds(raw_data, qc_features, classifier)
-    plot_qc_params(raw_data, limits, save_q = True, save_name = "qc_params_thresholds", figsize = (10, 40))
-    threshold_data = process_limits(limits)
-    print(threshold_data)
+    write_results(raw_data, data, classifier, limits, args.out_dir)
     
 if __name__ == "__main__":
     main()
