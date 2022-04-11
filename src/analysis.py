@@ -77,11 +77,16 @@ def process_data(raw_data: pd.DataFrame, threshold: float) -> Tuple[pd.DataFrame
 
 def decision_tree(data: pd.DataFrame) -> sklearn.tree.DecisionTreeClassifier:
     Y = data.pop(LABELS)
-    X_train, X_test, Y_train, Y_test = train_test_split(data, Y, test_size = 0.3, random_state = 104729)
+    X_train, X_test, Y_train, Y_test = train_test_split(data, Y, test_size = TEST_SET_SIZE, random_state = 104729)
     classifier = DecisionTreeClassifier(random_state = 224737, min_samples_split = 2)
     classifier.fit(X_train, Y_train)
+    classifier_results = {"Train Size" : X_train.shape[0], 
+                          "Test Size": X_test.shape[0], 
+                          "Test Accuracy": classifier.score(X_test, Y_test) * 100}
+    
+    classifier_results = {k: [v] for k, v in classifier_results.items()}
     # print(f"Accuracy achieved on test set: {(classifier.score(X_test, Y_test) * 100):.2f}%")
-    return classifier
+    return classifier, classifier_results
     
 def plot_decision_tree(tree: sklearn.tree,
                        save_name: str,
@@ -102,7 +107,7 @@ def plot_decision_tree(tree: sklearn.tree,
     if save_q:
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        plt.figure().savefig(os.path.join(out_dir, ".".join(["decision_tree", "png"])), format = "jpg", dpi = 180, bbox_inches = "tight")
+        plt.figure().savefig(os.path.join(out_dir, ".".join(["decision_tree", "png"])), dpi = 180, bbox_inches = "tight")
         
     plt.close()
     
@@ -140,6 +145,7 @@ def process_limits(qc_thresolds: dict) -> pd.DataFrame:
 def write_results(raw_data: pd.DataFrame, 
                   data: pd.DataFrame, 
                   classifier: sklearn.tree.DecisionTreeClassifier, 
+                  classifier_results: dict, 
                   limits: dict, 
                   out_dir: str) -> None:
     
@@ -161,10 +167,8 @@ def write_results(raw_data: pd.DataFrame,
         
     plot_qc_params(data = raw_data, limits = limits, save_name = "qc_params_thresholds", figsize = (10, 40), out_dir = plots_dir)
     plot_decision_tree(tree = classifier, feature_names =  data.columns, save_name = "decision_tree", out_dir = plots_dir)
+    
     threshold_data = process_limits(limits)
     threshold_data.to_csv(os.path.join(data_dir, "qc_thresholds.csv"))
-
     
-    # TODO:     
-        # - Classifier results.
-        # - Multiple file support.
+    pd.DataFrame(classifier_results).to_csv(os.path.join(data_dir, "classifier_results.csv"))

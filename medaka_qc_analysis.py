@@ -16,9 +16,9 @@ def main():
     args = process_args()
     raw_data = analyse.pd.read_csv(args.input_file)
     data, scale = analyse.process_data(raw_data, 20)
-    classifier = analyse.decision_tree(data)
+    classifier, classifier_results = analyse.decision_tree(data)
     limits = analyse.get_thresholds(raw_data, analyse.qc_features, classifier)
-    analyse.write_results(raw_data, data, classifier, limits, args.out_dir)
+    analyse.write_results(raw_data, data, classifier, classifier_results, limits, args.out_dir)
     
 if __name__ == "__main__":
     main()

@@ -1,5 +1,8 @@
 import os
 
+
+TEST_SET_SIZE = 0.3
+
 PLOT_SAVE_DIR = os.path.relpath("figs")
 DATA_SAVE_DIR = os.path.relpath("thresholds")
 
