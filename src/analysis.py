@@ -1,6 +1,4 @@
 import os
-import argparse
-
 from typing import Iterable, Union, Tuple, List
 
 import numpy as np
@@ -46,8 +44,6 @@ def plot_qc_params(data: pd.DataFrame,
                     ax[i].legend()
                     
     if save_q:
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir)
         fig.savefig(os.path.join(out_dir, ".".join([save_name, "png"])), 
                     dpi = 180,
                     bbox_inches = "tight")
@@ -105,8 +101,6 @@ def plot_decision_tree(tree: sklearn.tree,
                            filled = True)
     
     if save_q:
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir)
         plt.figure().savefig(os.path.join(out_dir, ".".join(["decision_tree", "png"])), dpi = 180, bbox_inches = "tight")
         
     plt.close()
