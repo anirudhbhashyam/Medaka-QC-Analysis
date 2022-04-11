@@ -130,8 +130,8 @@ def get_thresholds(unscaled_data: pd.DataFrame,
             
     return limits
 
-def process_limits(qc_thresolds: dict) -> pd.DataFrame:
-    df = pd.DataFrame.from_dict(qc_thresolds, orient = "index")
+def process_limits(qc_thresholds: dict) -> pd.DataFrame:
+    df = pd.DataFrame.from_dict(qc_thresholds, orient = "index")
     df["qc_mean"] = df.mean(axis = 1, skipna = True)
     df["qc_max"] = df.max(axis = 1, skipna = True)
     return df 
