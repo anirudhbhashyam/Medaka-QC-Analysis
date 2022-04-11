@@ -22,12 +22,12 @@ def plot_qc_params(data: pd.DataFrame,
                    figsize: tuple = (10, 30), 
                    save_q: bool = True) -> None:
     
-    fig, ax = plt.subplots(nrows = len(qc_features), 
+    fig, ax = plt.subplots(nrows = len(QC_FEATURES), 
                         figsize = figsize,
                         gridspec_kw = dict(left = 0.01, right = 0.9,
                                             bottom = 0.0001, top = 0.9)) 
 
-    for i, feature in enumerate(qc_features):
+    for i, feature in enumerate(QC_FEATURES):
         ax[i].set(ylabel = feature) 
         sns.scatterplot(
             data = data,
@@ -66,8 +66,8 @@ def process_data(raw_data: pd.DataFrame, threshold: float) -> Tuple[pd.DataFrame
     data = data.drop(columns = [actual, desired])
     
     scaler = MinMaxScaler()
-    scaler.fit(data[qc_features])
-    data[qc_features] = scaler.transform(data[qc_features])
+    scaler.fit(data[QC_FEATURES])
+    data[QC_FEATURES] = scaler.transform(data[QC_FEATURES])
     
     return data, scaler.scale_
 
