@@ -49,8 +49,6 @@ def plot_qc_params(data: pd.DataFrame,
                     bbox_inches = "tight")
         
     plt.close()
-    
-    return None
 
 def convert_error_cat(actual: Iterable, desired: Iterable, threshold: float) -> list:
     return [1 if abs(a - d) >= threshold else 0 for a, d in zip(actual, desired)]
@@ -71,7 +69,7 @@ def process_data(raw_data: pd.DataFrame, threshold: float) -> Tuple[pd.DataFrame
     
     return data, scaler.scale_
 
-def decision_tree(data: pd.DataFrame) -> sklearn.tree.DecisionTreeClassifier:
+def decision_tree(data: pd.DataFrame) -> Tuple[sklearn.tree.DecisionTreeClassifier, dict]:
     Y = data.pop(LABELS)
     X_train, X_test, Y_train, Y_test = train_test_split(data, Y, test_size = TEST_SET_SIZE, random_state = 104729)
     classifier = DecisionTreeClassifier(random_state = 224737, min_samples_split = 2)
